@@ -1,5 +1,5 @@
-globals [miles-travelled moving? maintenance-time at-station1? at-station2? picked-up? done? travel-time iexist?]
-turtles-own [direction]
+globals [miles-travelled moving? maintenance-time at-station1? at-station2? picked-up? done? waiting-time ontrain-time iexist? total-time]
+turtles-own [direction passenger-waiting? ontrain?]
 
 breed [trains train]
 breed [persons person]
@@ -54,28 +54,55 @@ to new-passenger
     setxy -8 1
     set label "person"
     set done? false
-    set travel-time 0
+    set passenger-waiting? true
+    set waiting-time 0
+    set ontrain-time 0
+    set total-time 0
   ]
 end
 
 to go
-  tick
 
+  file-open "/Users/thomaspark/Documents/NetLogo/Maintenance Affected Simulation/version1/12-09-22/50rate-waiting-time-121122"
+  file-write waiting-time
+  file-close
+
+  file-open "/Users/thomaspark/Documents/NetLogo/Maintenance Affected Simulation/version1/12-09-22/50rate-on-train-time-121122"
+  file-write ontrain-time
+  file-close
+
+  file-open "/Users/thomaspark/Documents/NetLogo/Maintenance Affected Simulation/version1/12-09-22/50rate-total-time-121122"
+  file-write total-time
+  file-close
+
+  tick
   if (ticks >= 500) [
     stop
   ]
-
   if (ticks = 50) or (ticks = 200) or (ticks = 320) [
     new-passenger
   ]
 
   train-movement
+
+  ask persons [
+  if (passenger-waiting? = true) [
+    set waiting-time waiting-time + 1
+    set total-time waiting-time
+  ]
+  ]
+
+  ask persons [
+  if (ontrain? = true) [
+    set ontrain-time ontrain-time + 1
+    set total-time waiting-time + ontrain-time
+    ]
+  ]
+
   if (moving? = true) [
     set miles-travelled miles-travelled + 1
   ]
-  if (done? = false) and (iexist? = true) [
-  set travel-time travel-time + 1
-  ]
+
 end
 
 to train-movement
@@ -130,6 +157,8 @@ end
 
 to boarding1
   ask persons [
+    set passenger-waiting? false
+    set ontrain? true
     if (done? = false) and (label = "person") [
     set color red
     set picked-up? true
@@ -145,6 +174,9 @@ to alighting1
     set picked-up? false
     setxy 8 1
     set done? true
+      set waiting-time 0
+      set ontrain-time 0
+      set total-time 0
       set label "done"
       die
     ]
@@ -261,7 +293,7 @@ maintenance-rate
 maintenance-rate
 1
 100
-100.0
+50.0
 1
 1
 miles
@@ -287,10 +319,10 @@ NIL
 MONITOR
 1009
 239
-1090
+1099
 284
 NIL
-travel-time
+waiting-time
 17
 1
 11
@@ -302,7 +334,7 @@ PLOT
 475
 plot 2
 ticks
-travel time
+waiting time
 0.0
 10.0
 0.0
@@ -311,7 +343,65 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot travel-time"
+"default" 1.0 0 -14070903 true "" "plot waiting-time"
+
+MONITOR
+1125
+247
+1217
+292
+NIL
+ontrain-time
+17
+1
+11
+
+PLOT
+1070
+522
+1270
+672
+plot 3
+ticks
+time on the train
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -955883 true "" "plot ontrain-time"
+
+MONITOR
+1251
+254
+1325
+299
+NIL
+total-time
+17
+1
+11
+
+PLOT
+1087
+697
+1287
+847
+plot 4
+ticks
+total travel time
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -12087248 true "" "plot total-time"
 
 @#$#@#$#@
 ## WHAT IS IT?
