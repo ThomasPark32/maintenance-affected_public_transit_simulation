@@ -495,29 +495,48 @@ end
 
 to csv ;; thank you to this thread on Google Groups for help in this output code https://groups.google.com/g/netlogo-users/c/Bq4MF0xg89c
 
+  let directory "/Users/thomaspark/Documents/NetLogo/Maintenance Affected Simulation/version2/" ;; local path directory
+
+  let averaging-list []
+  ask persons [
+    set averaging-list lput time-final averaging-list ;; makes a list of all passenger travel times
+  ]
+
+  let average 0 ;; average variable
+   ask persons [
+    set average mean averaging-list ;; takes average of all passenger travel times and sets it to the variable average
+  ]
+
   let waiting-list [] ;; waiting times
   set waiting-list lput ["Waiting times of Passengers"] waiting-list
   set waiting-list lput (list "Passenger" "Waiting Time" "Time Occurred") waiting-list
-  ask persons [
+  foreach sort [who] of persons  [
+    number -> ask person number [
       set waiting-list lput (list who time-waiting when-waiting) waiting-list ;; appends what each passenger's waiting time is to the master list
+    ]
   ]
-  csv:to-file "/Users/thomaspark/Documents/NetLogo/Maintenance Affected Simulation/version2/waitingexport.csv" waiting-list
+  csv:to-file (word directory "waitingexport" maintenance-cycle "ticks.csv") waiting-list
 
   let travel-list [] ;; travel times
   set travel-list lput ["Travel times of Passengers"] travel-list
   set travel-list lput (list "Passenger" "Traveling Time" "Time Occurred") travel-list
-  ask persons [
+  foreach sort [who] of persons  [
+    number -> ask person number [
       set travel-list lput (list who time-travelling when-travelling) travel-list ;; appends what each passenger's travel time is to the master list
+    ]
   ]
-  csv:to-file "/Users/thomaspark/Documents/NetLogo/Maintenance Affected Simulation/version2/travelexport.csv" travel-list
+  csv:to-file (word directory "travelexport" maintenance-cycle "ticks.csv") travel-list
 
   let totals-list [] ;; total times
   set totals-list lput ["Passenger" "Total trip times of Passengers"] totals-list
   set totals-list lput (list "Passenger" "Total Trip Time") totals-list
-  ask persons [
+  foreach sort [who] of persons  [ ;; repeats through all passengers
+    number -> ask person number [
       set totals-list lput (list who time-final) totals-list ;; appends what each passenger's total time is to the master list
+    ]
   ]
-  csv:to-file "/Users/thomaspark/Documents/NetLogo/Maintenance Affected Simulation/version2/totalexport.csv" totals-list
+  set totals-list lput (list "Average" average) totals-list ;; appends what the average passenger travel time is to the master list
+  csv:to-file (word directory "totalsexport" maintenance-cycle "ticks.csv") totals-list
 
 end
 @#$#@#$#@
